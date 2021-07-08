@@ -7,13 +7,13 @@ namespace PolygonGeopoints
 {
     public static class UserService
     {
+        private static readonly IUriStringCreator uriCreator = new OsmUriStringCreator();
 
         public static string RequestPolygon(string searchString)
         {
-            // Call asynchronous network methods in a try/catch block to handle exceptions.
             try
             {
-                HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(@"https://nominatim.openstreetmap.org/search?q=" + searchString + @"&format=json&polygon_geojson=1");
+                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(uriCreator.GetString(searchString));
                 webRequest.UserAgent = @"PolygonGeopointsApp";
                 webRequest.Method = "GET";
                
@@ -21,9 +21,7 @@ namespace PolygonGeopoints
                 {
                     using (StreamReader streamReader = new StreamReader(webResponse.GetResponseStream()))
                     {
-                        string response = streamReader.ReadToEnd();
-                        Console.WriteLine(response);
-                        return response;
+                        return streamReader.ReadToEnd();
                     }
                 }
                 
