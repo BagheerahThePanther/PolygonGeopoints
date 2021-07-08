@@ -32,7 +32,7 @@ namespace PolygonGeopoints
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
-            if(recievedData == default(dynamic))
+            if (recievedData == default(dynamic))
             {
                 MessageBox.Show("Сначала введите название объекта и нажмите кнопку \"Найти\"", "Невозможно сохранить полигон", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -46,16 +46,35 @@ namespace PolygonGeopoints
 
         private void savePointsToFileDialog_FileOk(object sender, CancelEventArgs e)
         {
-            
-            File.WriteAllText(Path.GetFullPath(savePointsToFileDialog.FileName), calculateNewPolygon().ToString());
+            string result;
+            try
+            {
+                result = calculateNewPolygon().ToString();
+
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Что-то пошло не так в процессе обработки результата для сохранения в файл", "Ошибка");
+                return;
+            }
+            try
+            {
+                File.WriteAllText(Path.GetFullPath(savePointsToFileDialog.FileName), result);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message, "Невозможно сохранить файл");
+                return;
+            }
+            MessageBox.Show("Файл успешно сохранен");
         }
 
         private JArray calculateNewPolygon()
         {
             int period = Decimal.ToInt32(numericUpDownPeriod.Value);
             JArray result = new JArray();
-            JArray areas = JArray.Parse(((JToken)(recievedData)).ToString());  
-            foreach (var area in areas)                 
+            JArray areas = JArray.Parse(((JToken)(recievedData)).ToString());
+            foreach (var area in areas)
             {
                 JArray points;
                 if (JArray.Parse(area.ToString()).Count == 1)
@@ -89,7 +108,6 @@ namespace PolygonGeopoints
                 {
                     result.Add(points);
                 }
-                
             }
             return result;
         }
